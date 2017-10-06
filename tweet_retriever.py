@@ -28,7 +28,7 @@ if __name__ == "__main__":
 	args = input_twitter_params()
 	
 	search_text = args.s
-	num_tweets = args.m
+	max_num_tweets = args.m
 	app_access_token = args.o
 	app_access_token_secret = args.p
 	user_access_token = args.t
@@ -43,7 +43,44 @@ if __name__ == "__main__":
 	if not search_text: # ASSUMPTION: Search text cannot be empty. 
 		print("Please provide a search text.")
 		sys.exit()
-	#if not search_text.is_alpha(): # ASSUMPTION: Search text cannot be empty. 
+	if not search_text.is_alpha(): # ASSUMPTION: Search text cannot characters other than letters.
+		print("Please provide a search text that has letters only.")
+		sys.exit()
+	
+	# Validate maximum number of tweets (-m).
+	if not 0 <= max_num_tweets <= 500: # ASSUMPTION: We are allowing the user to have 0 tweets specified.
+		print("Ensure that the maximum number of tweets is between 0 and 500 inclusively.")
+		sys.exit()
+
+	# Validate application access token (-o).
+	if not app_access_token: # ASSUMPTION: Token cannot be null.
+		print("Please provide an application access token for Twitter access.")
+		sys.exit()
+
+	# Validate application access token secret (-p).
+	if not app_access_token: # ASSUMPTION: Token cannot be null.
+		print("Please provide an application access secret token for Twitter access.")
+		sys.exit()
+
+	# Validate user access token (-t).
+	if not app_access_token: # ASSUMPTION: Token cannot be null.
+		print("Please provide an user access token for Twitter access.")
+		sys.exit()
+
+	# Validate user access token secret (-x).
+	if not app_access_token: # ASSUMPTION: Token cannot be null.
+		print("Please provide an user access token secret for Twitter access.")
+		sys.exit()
+
+	# Validate to date (-b).
+
+	# Validate from date (-a).
+
+	# Valid twitter user id (-i).
+	if twitter_user_id and twitter_user_id[0] != "@":
+		print("Please ensure the given twitter user id starts with '@'")
+
+
 
 
 
