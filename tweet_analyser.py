@@ -1,6 +1,11 @@
 import operator
 
 class TweetAnalyser:
+	'''
+	This class is repsonsible for analysing tweet data based on user input data. The class will
+	retrieve tweets from the Twitter API and process the data such that it will list most frequently 
+	ocurring words in a set of tweets and exclude words that are inside the given search string.
+	'''
 
 	def __init__(self, search_text, max_num_tweets, app_access_token, 
 		app_access_token_secret, user_access_token, user_access_token_secret, 
@@ -19,6 +24,13 @@ class TweetAnalyser:
 		self.min_word_count = min_word_count
 
 
+	
+
+
+
+	'''
+	Simple setter and getter methods for the given input parameters.
+	'''
 	search_text = property(operator.attrgetter('_search_text')) 
 	max_num_tweets = property(operator.attrgetter('_max_num_tweets')) 
 	app_access_token = property(operator.attrgetter('_app_access_token')) 
