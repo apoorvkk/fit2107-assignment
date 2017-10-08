@@ -1,4 +1,6 @@
 image: python:3.5
 test:
   script:
-    python3 test_tweet_analyser_input_params.py
+    - apt-get install -y python-dev python-pip
+    - pip install -r requirements.txt
+    - python3 test_tweet_analyser_input_params.py
