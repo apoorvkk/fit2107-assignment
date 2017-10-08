@@ -38,10 +38,11 @@ class TweetAnalyser:
 		tweet_count = 0
 
 		tweet_num = 0
-		if self.max_num_tweets < 200:
-			tweet_num = self.max_num_tweets
-		else:
-			tweet_num = 200
+		if self.max_num_tweets is not None:
+			if self.max_num_tweets < 200:
+				tweet_num = self.max_num_tweets
+			else:
+				tweet_num = 200
 
 		if self.from_date is None:
 			self.from_date == datetime.datetime.strptime('2006-07-15', "%Y-%m-%d")
@@ -77,6 +78,8 @@ class TweetAnalyser:
 				break
 			count += 1
 		return sorted_list
+	
+		# TODO: add constraint for search text
 
 	'''
 	Simple setter and getter methods for the given input parameters.
