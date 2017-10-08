@@ -35,13 +35,11 @@ class TweetAnalyser:
 		api = tweepy.API(auth)
 
 		frequency = {}
-		public_tweets = api.home_timeline(count=200)
+		public_tweets = api.home_timeline(count=self.max_num_tweets)
 		num_tweets = 0
 
 		# loop over each word in tweets, check if valid char, count frequency
 		for line in public_tweets:
-			if num_tweets > self.max_num_tweets:
-				break
 			words = line.text.split()
 			for word in words:
 				add = True
@@ -106,8 +104,8 @@ class TweetAnalyser:
 		except (ValueError, TypeError):
 			raise TypeError("Ensure that maximum number of tweets is an integer value.")
 
-		if not 0 <= m <= 500: # ASSUMPTION: We are allowing the user to have 0 tweets specified.
-			raise ValueError("Ensure that the maximum number of tweets is between 0 and 500 inclusively.")
+		if not 0 <= m <= 200: # ASSUMPTION: We are allowing the user to have 0 tweets specified.
+			raise ValueError("Ensure that the maximum number of tweets is between 0 and 200 inclusively.")
 		self._max_num_tweets = m
 
 	@app_access_token.setter
