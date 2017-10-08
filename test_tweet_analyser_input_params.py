@@ -58,6 +58,12 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
             None, None, "@random_id", 10, 10)
         self.assertEqual(t_analyser.max_num_tweets, 500)
     
+    def test_max_num_tweets_empty(self):
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "search", None, "token", "token", "token", "token", 
+            None, None, "@random_id", 10, 10)
+        self.assertEqual(t_analyser.max_num_tweets, 100)
+
     def test_app_access_token_empty(self):
         with self.assertRaises(TypeError):
             t_analyser = tweet_analyser.TweetAnalyser(
@@ -209,6 +215,12 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
             None, None, "@random_id", 1, 10)
         self.assertEqual(t_analyser.top_t_words, 1)
 
+    def test_top_t_words_empty(self):
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "search", 100, "token", "token", "token", "token", 
+            None, None, "@random_id", None, 10)
+        self.assertEqual(t_analyser.top_t_words, 10)
+
     def test_min_word_count_invalid_num(self):
         with self.assertRaises(TypeError):
             t_analyser = tweet_analyser.TweetAnalyser(
@@ -226,6 +238,12 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
             "searchtext", 10, "token", "token", "token", "token", 
             None, None, "@random_id", 1, 1)
         self.assertEqual(t_analyser.min_word_count, 1)
+
+    def test_min_word_count_empty(self):
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "search", 100, "token", "token", "token", "token", 
+            None, None, "@random_id", 10, None)
+        self.assertEqual(t_analyser.min_word_count, 10)
 
 
 if __name__ == '__main__':
