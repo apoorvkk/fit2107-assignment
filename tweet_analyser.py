@@ -36,21 +36,32 @@ class TweetAnalyser:
 
 		frequency = {}
 
-		num_tweets = 0
-		if self.max_num_tweets < 200:
-			num_tweets = self.max_num_tweets
+		tweet_num = 0
+		max_tweets = 30
+		if max_tweets < 200:
+			tweet_num = max_tweets
 		else:
-			num_tweets = 200
+			tweet_num = 200
 
 		tweet_count = 0
-		for page in tweepy.Cursor(api.home_timeline, count=num_tweets).pages():
-			if tweet_count > self.max_num_tweets:
+		for page in tweepy.Cursor(api.home_timeline, count=tweet_num).pages():
+			if tweet_count > max_tweets:
 				break
 			for status in page:
+				# if status creation date is less than the from date
+				if status.created_at < datetime.datetime.strptime(self.from_date, "%Y-%m-%d"):
+					break
+				# if status creation date is greater than the to date
+				if status.created_at > datetime.datetime.strptime(self.to_date, "%Y-%m-%d"):
+					break
+				# if the status screen name does not equal the requested ID
+				if status.user.screen_name != self.twitter_user_id:
+					break
 				tweet_count += 1
 				words = status.text.split()
 				for word in words:
 					add = True
+					# check if word only contains upper/lower case letters
 					for char in word:
 						if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
 							add = False
@@ -70,9 +81,6 @@ class TweetAnalyser:
 				break
 			count += 1
 		return sorted_list
-
-		# TODO: Include a constraint to retrieve public tweets between input dates
-		# TODO: Allow constraint of a particular twitter ID to analyse tweets from
 
 	'''
 	Simple setter and getter methods for the given input parameters.
