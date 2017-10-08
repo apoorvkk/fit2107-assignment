@@ -34,7 +34,7 @@ class TweetAnalyser:
 		api = tweepy.API(auth)
 
 		frequency = {}
-		public_tweets = api.home_timeline()
+		public_tweets = api.home_timeline(count=200)
 		num_tweets = 0
 
 		# loop over each word in tweets, check if valid char, count frequency
@@ -65,6 +65,8 @@ class TweetAnalyser:
 			print(str(item[1]) + "\t" + item[0])
 			count += 1
 
+		# TODO: Include a constraint to retrieve public tweets between input dates
+		# TODO: Allow constraint of a particular twitter ID to analyse tweets from
 
 	'''
 	Simple setter and getter methods for the given input parameters.
