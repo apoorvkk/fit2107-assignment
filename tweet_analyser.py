@@ -44,7 +44,7 @@ class TweetAnalyser:
 	min_word_count = property(operator.attrgetter('_min_word_count')) 
 
 	@search_text.setter
-	def search_text(self, s=None):
+	def search_text(self, s):
 		if not s: # ASSUMPTION: Search text cannot be empty. 
 			raise TypeError("Please provide a search text.")
 
@@ -54,7 +54,9 @@ class TweetAnalyser:
 		self._search_text = s
 
 	@max_num_tweets.setter
-	def max_num_tweets(self, m=100):
+	def max_num_tweets(self, m):
+		if not m: 
+			m = 100
 		try: 
 			m = int(m)
 		except (ValueError, TypeError):
@@ -65,31 +67,31 @@ class TweetAnalyser:
 		self._max_num_tweets = m
 
 	@app_access_token.setter
-	def app_access_token(self, a=None):
+	def app_access_token(self, a):
 		if not a: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an application access token for Twitter access.")
 		self._app_access_token = str(a)
 
 	@app_access_token_secret.setter
-	def app_access_token_secret(self, a=None):
+	def app_access_token_secret(self, a):
 		if not a: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an application access token secret for Twitter access.")
 		self._app_access_token_secret = str(a)
 
 	@user_access_token.setter
-	def user_access_token(self, u=None):
+	def user_access_token(self, u):
 		if not u: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an user access token for Twitter access.")
 		self._user_access_token = str(u)
 
 	@user_access_token_secret.setter
-	def user_access_token_secret(self, u=None):
+	def user_access_token_secret(self, u):
 		if not u: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an user access token secret for Twitter access.")
 		self._user_access_token_secret = str(u)
 
 	@to_date.setter
-	def to_date(self, d=None):
+	def to_date(self, d):
 		if d:
 			try:
 				d = datetime.datetime.strptime(d, '%Y-%m-%d')
@@ -104,7 +106,7 @@ class TweetAnalyser:
 		self._to_date = d
 
 	@from_date.setter
-	def from_date(self, d=None):
+	def from_date(self, d):
 		if d:
 			try:
 				d = datetime.datetime.strptime(d, '%Y-%m-%d')
@@ -115,7 +117,7 @@ class TweetAnalyser:
 		self._from_date = d
 
 	@twitter_user_id.setter
-	def twitter_user_id(self, i=None):
+	def twitter_user_id(self, i):
 		if i:
 			i = str(i)
 			if i[0] != "@":
@@ -123,7 +125,9 @@ class TweetAnalyser:
 		self._twitter_user_id = i
 
 	@top_t_words.setter
-	def top_t_words(self, t=10):
+	def top_t_words(self):
+		if not t:
+			t = 10
 		try: 
 			t = int(t)
 		except (ValueError, TypeError):
@@ -134,7 +138,9 @@ class TweetAnalyser:
 		self._top_t_words = t
 
 	@min_word_count.setter
-	def min_word_count(self, c=10):
+	def min_word_count(self, c):
+		if not c:
+			c = 10
 		try: 
 			c = int(c)
 		except (ValueError, TypeError):
