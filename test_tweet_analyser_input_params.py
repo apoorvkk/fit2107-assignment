@@ -43,7 +43,7 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
     def test_max_num_tweets_out_of_upper_bounds(self):
         with self.assertRaises(ValueError):
             t_analyser = tweet_analyser.TweetAnalyser(
-                "searchtext", 501, "token", "token", "token", "token", 
+                "searchtext", 201, "token", "token", "token", "token",
                 None, None, "@random_id", 10, 10)
 
     def test_max_num_tweets_in_of_lower_bounds(self):
@@ -54,9 +54,9 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
 
     def test_max_num_tweets_in_of_upper_bounds(self):
         t_analyser = tweet_analyser.TweetAnalyser(
-            "searchtext", 500, "token", "token", "token", "token", 
+            "searchtext", 200, "token", "token", "token", "token",
             None, None, "@random_id", 10, 10)
-        self.assertEqual(t_analyser.max_num_tweets, 500)
+        self.assertEqual(t_analyser.max_num_tweets, 200)
     
     def test_max_num_tweets_empty(self):
         t_analyser = tweet_analyser.TweetAnalyser(
