@@ -1,2 +1,6 @@
 image: python:3.5
-
+test:
+  script:
+    - pip install -r requirements.txt
+    - coverage run test_tweet_analyser_input_params.py
+    - coverage report -m
