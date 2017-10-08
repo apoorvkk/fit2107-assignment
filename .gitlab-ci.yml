@@ -3,3 +3,4 @@ test:
   script:
     - pip install -r requirements.txt
     - coverage run --branch test_tweet_analyser_input_params.py
+    - coverage report -m
