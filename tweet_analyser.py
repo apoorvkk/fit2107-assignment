@@ -35,33 +35,29 @@ class TweetAnalyser:
 		api = tweepy.API(auth)
 
 		frequency = {}
+		tweet_count = 0
 
 		tweet_num = 0
-		max_tweets = 30
-		if max_tweets < 200:
-			tweet_num = max_tweets
+		if self.max_num_tweets < 200:
+			tweet_num = self.max_num_tweets
 		else:
 			tweet_num = 200
 
-		tweet_count = 0
-		for page in tweepy.Cursor(api.home_timeline, count=tweet_num).pages():
-			if tweet_count > max_tweets:
+		if self.from_date is None:
+			self.from_date == datetime.datetime.strptime('2006-07-15', "%Y-%m-%d")
+		if self.to_date is None:
+			self.to_date == datetime.datetime.now()
+
+		for page in tweepy.Cursor(api.home_timeline, since=self.from_date, until=self.to_date, count=tweet_num).pages():
+			if tweet_count > self.max_num_tweets:
 				break
 			for status in page:
-				# if status creation date is less than the from date
-				if status.created_at < datetime.datetime.strptime(self.from_date, "%Y-%m-%d"):
-					break
-				# if status creation date is greater than the to date
-				if status.created_at > datetime.datetime.strptime(self.to_date, "%Y-%m-%d"):
-					break
-				# if the status screen name does not equal the requested ID
-				if status.user.screen_name != self.twitter_user_id:
+				if self.twitter_user_id is not None and status.user.screen_name != self.twitter_user_id:
 					break
 				tweet_count += 1
 				words = status.text.split()
 				for word in words:
 					add = True
-					# check if word only contains upper/lower case letters
 					for char in word:
 						if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
 							add = False
