@@ -125,7 +125,7 @@ class TweetAnalyser:
 		self._twitter_user_id = i
 
 	@top_t_words.setter
-	def top_t_words(self):
+	def top_t_words(self, t):
 		if not t:
 			t = 10
 		try: 
