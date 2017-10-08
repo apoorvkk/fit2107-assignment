@@ -48,6 +48,9 @@ class TweetAnalyser:
 					if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
 						add = False
 						break
+					elif word.lower() == self.search_text.lower():
+						add = False
+						break
 				if not add:
 					break
 				count = frequency.get(word, 0)
