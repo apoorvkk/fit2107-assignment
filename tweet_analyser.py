@@ -45,7 +45,7 @@ class TweetAnalyser:
 
 	@search_text.setter
 	def search_text(self, s):
-		if not s: # ASSUMPTION: Search text cannot be empty. 
+		if s is None: # ASSUMPTION: Search text cannot be empty. 
 			raise TypeError("Please provide a search text.")
 
 		if not s.isalpha(): # ASSUMPTION: Search text cannot characters other than letters.
@@ -55,7 +55,7 @@ class TweetAnalyser:
 
 	@max_num_tweets.setter
 	def max_num_tweets(self, m):
-		if not m: 
+		if m is None: 
 			m = 100
 		try: 
 			m = int(m)
@@ -68,57 +68,57 @@ class TweetAnalyser:
 
 	@app_access_token.setter
 	def app_access_token(self, a):
-		if not a: # ASSUMPTION: Token cannot be null.
+		if a is None: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an application access token for Twitter access.")
 		self._app_access_token = str(a)
 
 	@app_access_token_secret.setter
 	def app_access_token_secret(self, a):
-		if not a: # ASSUMPTION: Token cannot be null.
+		if a is None: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an application access token secret for Twitter access.")
 		self._app_access_token_secret = str(a)
 
 	@user_access_token.setter
 	def user_access_token(self, u):
-		if not u: # ASSUMPTION: Token cannot be null.
+		if u is None: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an user access token for Twitter access.")
 		self._user_access_token = str(u)
 
 	@user_access_token_secret.setter
 	def user_access_token_secret(self, u):
-		if not u: # ASSUMPTION: Token cannot be null.
+		if u is None: # ASSUMPTION: Token cannot be null.
 			raise TypeError("Please provide an user access token secret for Twitter access.")
 		self._user_access_token_secret = str(u)
 
 	@to_date.setter
 	def to_date(self, d):
-		if d:
+		if d is not None:
 			try:
 				d = datetime.datetime.strptime(d, '%Y-%m-%d')
 			except ValueError:
 				raise ValueError("Please input a valid date which is in the format of YYYY-MM-DD.")
 
-		if d and d > datetime.datetime.now():
+		if d is not None and d > datetime.datetime.now():
 			raise ValueError("Please input a from date that is not after today.")
 		
-		if d and self.from_date and d <= self.from_date:
+		if d is not None and self.from_date and d <= self.from_date:
 			raise ValueError("Please input a to date that is after the given from date.")
 		self._to_date = d
 
 	@from_date.setter
 	def from_date(self, d):
-		if d:
+		if d is not None:
 			try:
 				d = datetime.datetime.strptime(d, '%Y-%m-%d')
 			except ValueError:
 				raise ValueError("Please input a valid date which is in the format of YYYY-MM-DD.")
-		if d and d > datetime.datetime.now():
+		if d is not None and d > datetime.datetime.now():
 			raise ValueError("Please input a from date that is not after today.")
 		self._from_date = d
 
 	@twitter_user_id.setter
 	def twitter_user_id(self, i):
-		if i:
+		if i is not None:
 			i = str(i)
 			if i[0] != "@":
 				raise ValueError("Please ensure the given twitter user id starts with '@'")
@@ -126,7 +126,7 @@ class TweetAnalyser:
 
 	@top_t_words.setter
 	def top_t_words(self, t):
-		if not t:
+		if t is None:
 			t = 10
 		try: 
 			t = int(t)
@@ -139,7 +139,7 @@ class TweetAnalyser:
 
 	@min_word_count.setter
 	def min_word_count(self, c):
-		if not c:
+		if c is None:
 			c = 10
 		try: 
 			c = int(c)
