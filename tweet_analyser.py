@@ -1,16 +1,18 @@
 import operator
 import datetime
+import tweepy
+
 class TweetAnalyser:
 	'''
 	This class is repsonsible for analysing tweet data based on user input data. The class will
-	retrieve tweets from the Twitter API and process the data such that it will list most frequently 
+	retrieve tweets from the Twitter API and process the data such that it will list most frequently
 	ocurring words in a set of tweets and exclude words that are inside the given search string.
 	'''
 
-	def __init__(self, search_text, max_num_tweets, app_access_token, 
-		app_access_token_secret, user_access_token, user_access_token_secret, 
+	def __init__(self, search_text, max_num_tweets, app_access_token,
+		app_access_token_secret, user_access_token, user_access_token_secret,
 		from_date, to_date, twitter_user_id, top_t_words, min_word_count):
-		
+
 		self.search_text = search_text
 		self.max_num_tweets = max_num_tweets
 		self.app_access_token = app_access_token
@@ -24,24 +26,60 @@ class TweetAnalyser:
 		self.min_word_count = min_word_count
 
 
-	
+	def analyse_tweets(self):
 
+		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
+		auth.set_access_token(self.user_access_token, self.user_access_token_secret)
+
+		api = tweepy.API(auth)
+
+		frequency = {}
+		public_tweets = api.home_timeline()
+		num_tweets = 0
+
+		# loop over each word in tweets, check if valid char, count frequency
+		for line in public_tweets:
+			if num_tweets > self.max_num_tweets:
+				break
+			words = line.text.split()
+			for word in words:
+				add = True
+				for char in word:
+					if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
+						add = False
+						break
+				if not add:
+					break
+				count = frequency.get(word, 0)
+				frequency[word] = count + 1
+			num_tweets += 1
+
+		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
+
+		# loop over each word and print it with frequency
+		count = 0
+		for item in sorted_list:
+			# if below min frequency or above max num of words, stop printing
+			if item[1] == self.min_word_count or count == self.top_t_words:
+				break
+			print(str(item[1]) + "\t" + item[0])
+			count += 1
 
 
 	'''
 	Simple setter and getter methods for the given input parameters.
 	'''
-	search_text = property(operator.attrgetter('_search_text')) 
-	max_num_tweets = property(operator.attrgetter('_max_num_tweets')) 
-	app_access_token = property(operator.attrgetter('_app_access_token')) 
-	app_access_token_secret = property(operator.attrgetter('_app_access_token_secret')) 
-	user_access_token= property(operator.attrgetter('_user_access_token')) 
-	user_access_token_secret = property(operator.attrgetter('_user_access_token_secret')) 
-	from_date = property(operator.attrgetter('_from_date')) 
-	to_date = property(operator.attrgetter('_to_date')) 
-	twitter_user_id = property(operator.attrgetter('_twitter_user_id')) 
-	top_t_words = property(operator.attrgetter('_top_t_words')) 
-	min_word_count = property(operator.attrgetter('_min_word_count')) 
+	search_text = property(operator.attrgetter('_search_text'))
+	max_num_tweets = property(operator.attrgetter('_max_num_tweets'))
+	app_access_token = property(operator.attrgetter('_app_access_token'))
+	app_access_token_secret = property(operator.attrgetter('_app_access_token_secret'))
+	user_access_token = property(operator.attrgetter('_user_access_token'))
+	user_access_token_secret = property(operator.attrgetter('_user_access_token_secret'))
+	from_date = property(operator.attrgetter('_from_date'))
+	to_date = property(operator.attrgetter('_to_date'))
+	twitter_user_id = property(operator.attrgetter('_twitter_user_id'))
+	top_t_words = property(operator.attrgetter('_top_t_words'))
+	min_word_count = property(operator.attrgetter('_min_word_count'))
 
 	@search_text.setter
 	def search_text(self, s):
