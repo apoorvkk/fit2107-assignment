@@ -35,26 +35,30 @@ class TweetAnalyser:
 		api = tweepy.API(auth)
 
 		frequency = {}
-		public_tweets = api.home_timeline(count=self.max_num_tweets)
-		num_tweets = 0
 
-		# loop over each word in tweets, check if valid char, count frequency
-		for line in public_tweets:
-			words = line.text.split()
-			for word in words:
-				add = True
-				for char in word:
-					if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
-						add = False
+		num_tweets = 0
+		if self.max_num_tweets < 200:
+			num_tweets = self.max_num_tweets
+		else:
+			num_tweets = 200
+
+		tweet_count = 0
+		for page in tweepy.Cursor(api.home_timeline, count=num_tweets).pages():
+			if tweet_count > self.max_num_tweets:
+				break
+			for status in page:
+				tweet_count += 1
+				words = status.text.split()
+				for word in words:
+					add = True
+					for char in word:
+						if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
+							add = False
+							break
+					if not add:
 						break
-					elif word.lower() == self.search_text.lower():
-						add = False
-						break
-				if not add:
-					break
-				count = frequency.get(word, 0)
-				frequency[word] = count + 1
-			num_tweets += 1
+					count = frequency.get(word, 0)
+					frequency[word] = count + 1
 
 		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
 
@@ -104,8 +108,8 @@ class TweetAnalyser:
 		except (ValueError, TypeError):
 			raise TypeError("Ensure that maximum number of tweets is an integer value.")
 
-		if not 0 <= m <= 200: # ASSUMPTION: We are allowing the user to have 0 tweets specified.
-			raise ValueError("Ensure that the maximum number of tweets is between 0 and 200 inclusively.")
+		if not 0 <= m <= 500: # ASSUMPTION: We are allowing the user to have 0 tweets specified.
+			raise ValueError("Ensure that the maximum number of tweets is between 0 and 500 inclusively.")
 		self._max_num_tweets = m
 
 	@app_access_token.setter
