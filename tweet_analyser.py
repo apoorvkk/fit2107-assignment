@@ -27,6 +27,7 @@ class TweetAnalyser:
 
 
 	def analyse_tweets(self):
+		# returns list of tuples, ([word],[count])
 
 		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
 		auth.set_access_token(self.user_access_token, self.user_access_token_secret)
@@ -65,8 +66,8 @@ class TweetAnalyser:
 			# if below min frequency or above max num of words, stop printing
 			if item[1] == self.min_word_count or count == self.top_t_words:
 				break
-			print(str(item[1]) + "\t" + item[0])
 			count += 1
+		return sorted_list
 
 		# TODO: Include a constraint to retrieve public tweets between input dates
 		# TODO: Allow constraint of a particular twitter ID to analyse tweets from
