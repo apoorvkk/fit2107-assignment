@@ -157,7 +157,7 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         with self.assertRaises(ValueError):
             t_analyser = tweet_analyser.TweetAnalyser(
                 "searchtext", 10, "token", "token", "token", "token", 
-                None, None, "invalid from date", 10, 10)
+                "invalid from date", None, None, 10, 10)
 
     def test_from_date_after_today_date(self):
         d = (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
