@@ -1,5 +1,5 @@
 import operator
-
+import datetime
 class TweetAnalyser:
 	'''
 	This class is repsonsible for analysing tweet data based on user input data. The class will
@@ -92,12 +92,13 @@ class TweetAnalyser:
 	def to_date(self, d=None):
 		if d:
 			try:
-				d = datetime.strptime(d, '%Y-%m-%d')
+				d = datetime.datetime.strptime(d, '%Y-%m-%d')
 			except ValueError:
 				raise ValueError("Please input a valid date which is in the format of YYYY-MM-DD.")
 
-		if d and d > datetime.now():
+		if d and d > datetime.datetime.now():
 			raise ValueError("Please input a from date that is not after today.")
+		
 		if d and self.from_date and d <= self.from_date:
 			raise ValueError("Please input a to date that is after the given from date.")
 		self._to_date = d
@@ -106,10 +107,10 @@ class TweetAnalyser:
 	def from_date(self, d=None):
 		if d:
 			try:
-				d = datetime.strptime(d, '%Y-%m-%d')
+				d = datetime.datetime.strptime(d, '%Y-%m-%d')
 			except ValueError:
 				raise ValueError("Please input a valid date which is in the format of YYYY-MM-DD.")
-		if d and d > datetime.now():
+		if d and d > datetime.datetime.now():
 			raise ValueError("Please input a from date that is not after today.")
 		self._from_date = d
 
