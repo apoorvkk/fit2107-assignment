@@ -1,8 +1,15 @@
 import unittest
 import tweet_analyser
 import datetime
+import tweepy
+
+app_access_token = '5IPDWOouY8WrjRMLZVgC9XD9w'
+app_access_token_secret = 'pqyXj72rd6K0v6P6Kt38cRDGVMvcmevSk85r3aFbPxtIAzCMiR'
+user_access_token = '3787840280-Wg6dj7ik8AgRTCVy1myE5uvx9YF7rUy1IJObEEV'
+user_access_token_secret = 'uTNYs4M7hyfv5IpV6Dz603xLDcveYQ12gAfNDFilx6u4S'
 
 class TestTweetAnalyserInputParams(unittest.TestCase):
+    # tests for input validation
 
     def test_search_text_empty(self):
         with self.assertRaises(TypeError):
@@ -20,12 +27,6 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         with self.assertRaises(ValueError):
             t_analyser = tweet_analyser.TweetAnalyser(
                 "1", 10, "token", "token", "token", "token", 
-                None, None, "@random_id", 10, 10)
-
-    def test_search_text_empty(self):
-        with self.assertRaises(TypeError):
-            t_analyser = tweet_analyser.TweetAnalyser(
-                None, 10, "token", "token", "token", "token", 
                 None, None, "@random_id", 10, 10)
 
     def test_max_num_tweets_invalid_num(self):
@@ -243,7 +244,70 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         t_analyser = tweet_analyser.TweetAnalyser(
             "search", 100, "token", "token", "token", "token", 
             None, None, "@random_id", 10, None)
-        self.assertEqual(t_analyser.min_word_count, 10)
+        self.assertEqual(t_analyser.min_word_count, 0)
+
+    # tests for analyse_tweet
+
+    def test_search_text_valid(self):
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "the", None, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        found = False
+        for item in frequencies:
+            if item[0] == t_analyser.search_text:
+                found = True
+                break
+        self.assertEqual(found, False)
+
+    def test_max_num_tweets_zero(self):
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 0, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(frequencies, [])
+
+    def test_app_access_token_invalid(self):
+        with self.assertRaises(tweepy.error.TweepError):
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, "app_access_token", app_access_token_secret, user_access_token,
+                user_access_token_secret, None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_app_access_token_secret_invalid(self):
+        with self.assertRaises(tweepy.error.TweepError):
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, app_access_token, "app_access_token_secret", user_access_token,
+                user_access_token_secret, None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_user_access_token_invalid(self):
+        with self.assertRaises(tweepy.error.TweepError):
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, app_access_token, app_access_token_secret, "user_access_token",
+                user_access_token_secret, None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_user_access_token_secret_invalid(self):
+        with self.assertRaises(tweepy.error.TweepError):
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, app_access_token, app_access_token_secret, user_access_token,
+                "user_access_token_secret", None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_top_t_words_zero(self):
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 10, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, 0, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(frequencies, [])
+
+    def test_top_t_words_empty_2(self):
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 10, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(len(frequencies), 10)
 
 
 if __name__ == '__main__':

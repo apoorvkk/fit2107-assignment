@@ -53,7 +53,7 @@ class TweetAnalyser:
 				frequency[word] = count + 1
 		return broken
 
-	def analyse_tweet(self):
+	def analyse_tweets(self):
 		# returns list of tuples, ([word],[count])
 
 		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
@@ -64,10 +64,6 @@ class TweetAnalyser:
 		frequency = {}
 		tweet_count = 0
 		broken = False
-
-		# set default max num tweets if none given
-		if self.max_num_tweets is None:
-			self.max_num_tweets = 100
 
 		# if no ID given, search in home timeline
 		if self.twitter_user_id is None:
@@ -86,8 +82,6 @@ class TweetAnalyser:
 		# sort list in descending order
 		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
 
-		if self.top_t_words is None:
-			self.top_t_words = 10
 		# get count for whichever is lower out of the min frequency or top quantity of words
 		count = 0
 		for item in sorted_list:
@@ -209,7 +203,7 @@ class TweetAnalyser:
 	@min_word_count.setter
 	def min_word_count(self, c):
 		if c is None:
-			c = 10
+			c = 0
 		try: 
 			c = int(c)
 		except (ValueError, TypeError):
