@@ -30,6 +30,9 @@ class TweetAnalyser:
 		# returns broken, whether the analysing should stop because the max num tweets has been exceeded
 		# loops over each char in each word in each tweet on the page
 		for status in page:
+			if tweet_count >= self.max_num_tweets:
+				broken = True
+				break
 			tweet_count += 1
 			words = status.text.split()
 			for word in words:
@@ -48,9 +51,6 @@ class TweetAnalyser:
 				# add to dict
 				count = frequency.get(word, 0)
 				frequency[word] = count + 1
-			if tweet_count >= self.max_num_tweets:
-				broken = True
-				break
 		return broken
 
 	def analyse_tweet(self):
