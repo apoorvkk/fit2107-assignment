@@ -38,7 +38,7 @@ class TweetAnalyser:
 			for word in words:
 				add = True
 				# exclude from list if in search string
-				if self.search_string is not None and word == self.search_string:
+				if self.search_text is not None and word == self.search_text:
 					continue
 				# check if char is lower or upper case letter
 				for char in word:
