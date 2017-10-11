@@ -25,8 +25,35 @@ class TweetAnalyser:
 		self.top_t_words = top_t_words
 		self.min_word_count = min_word_count
 
+	def tweepify(self, page, frequency, tweet_count, broken):
+		# auxiliary function for analyse tweet
+		# returns broken, whether the analysing should stop because the max num tweets has been exceeded
+		# loops over each char in each word in each tweet on the page
+		for status in page:
+			tweet_count += 1
+			words = status.text.split()
+			for word in words:
+				add = True
+				# exclude from list if in search string
+				if self.search_string is not None and word == self.search_string:
+					continue
+				# check if char is lower or upper case letter
+				for char in word:
+					if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
+						add = False
+						break
+				# skip adding if character is not a letter
+				if not add:
+					continue
+				# add to dict
+				count = frequency.get(word, 0)
+				frequency[word] = count + 1
+			if tweet_count >= self.max_num_tweets:
+				broken = True
+				break
+		return broken
 
-	def analyse_tweets(self):
+	def analyse_tweet(self):
 		# returns list of tuples, ([word],[count])
 
 		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
@@ -36,50 +63,39 @@ class TweetAnalyser:
 
 		frequency = {}
 		tweet_count = 0
+		broken = False
 
-		tweet_num = 0
-		if self.max_num_tweets is not None:
-			if self.max_num_tweets < 200:
-				tweet_num = self.max_num_tweets
-			else:
-				tweet_num = 200
+		# set default max num tweets if none given
+		if self.max_num_tweets is None:
+			self.max_num_tweets = 500
 
-		if self.from_date is None:
-			self.from_date == datetime.datetime.strptime('2006-07-15', "%Y-%m-%d")
-		if self.to_date is None:
-			self.to_date == datetime.datetime.now()
-
-		for page in tweepy.Cursor(api.home_timeline, since=self.from_date, until=self.to_date, count=tweet_num).pages():
-			if tweet_count > self.max_num_tweets:
-				break
-			for status in page:
-				if self.twitter_user_id is not None and status.user.screen_name != self.twitter_user_id:
+		# if no ID given, search in home timeline
+		if self.twitter_user_id is None:
+			for page in tweepy.Cursor(api.home_timeline, since=self.from_date, until=self.to_date, count=200).pages():
+				if broken:
 					break
-				tweet_count += 1
-				words = status.text.split()
-				for word in words:
-					add = True
-					for char in word:
-						if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
-							add = False
-							break
-					if not add:
-						break
-					count = frequency.get(word, 0)
-					frequency[word] = count + 1
+				broken = self.tweepify(page, frequency, tweet_count, broken)
+		# if ID given, search in user timeline for ID
+		else:
+			for page in tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id, since=self.from_date,
+									  until=self.to_date, count=200).pages():
+				if broken:
+					break
+				broken = self.tweepify(page, frequency, tweet_count, broken)
 
+		# sort list in descending order
 		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
 
-		# loop over each word and print it with frequency
+		if self.top_t_words is None:
+			self.top_t_words = 10
+		# get count for whichever is lower out of the min frequency or top quantity of words
 		count = 0
 		for item in sorted_list:
-			# if below min frequency or above max num of words, stop printing
+			# if below min frequency or above max num of words
 			if item[1] == self.min_word_count or count == self.top_t_words:
 				break
 			count += 1
-		return sorted_list
-	
-		# TODO: add constraint for search text
+		return sorted_list[:count]
 
 	'''
 	Simple setter and getter methods for the given input parameters.
