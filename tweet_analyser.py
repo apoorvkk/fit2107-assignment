@@ -67,7 +67,7 @@ class TweetAnalyser:
 
 		# set default max num tweets if none given
 		if self.max_num_tweets is None:
-			self.max_num_tweets = 500
+			self.max_num_tweets = 100
 
 		# if no ID given, search in home timeline
 		if self.twitter_user_id is None:
