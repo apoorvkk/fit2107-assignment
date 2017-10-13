@@ -5,18 +5,10 @@ import tweepy
 import unittest
 from unittest import mock
 
-# app_access_token = '5IPDWOouY8WrjRMLZVgC9XD9w'
-# app_access_token_secret = 'pqyXj72rd6K0v6P6Kt38cRDGVMvcmevSk85r3aFbPxtIAzCMiR'
-# user_access_token = '3787840280-Wg6dj7ik8AgRTCVy1myE5uvx9YF7rUy1IJObEEV'
-# user_access_token_secret = 'uTNYs4M7hyfv5IpV6Dz603xLDcveYQ12gAfNDFilx6u4S'
-
-
-app_access_token = 'fghkjlk'
-app_access_token_secret = 'ghvjhbkjnlkm;'
-user_access_token = '3787qwdq840280-khljewdwkhjdwqdq'
-user_access_token_secret = 'jhbkjnlkm;lqwd'
-class TestTweetAnalyserInputParams(unittest.TestCase):
-    # tests for input validation
+class TestInputParams(unittest.TestCase):
+    '''
+    The following tests are for input parameters and validating their data.
+    '''
 
     def test_search_text_empty(self):
         with self.assertRaises(TypeError):
@@ -124,7 +116,7 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         t_analyser = tweet_analyser.TweetAnalyser(
             "searchtext", 10, "token", "token", "token", "token", 
             None, None, None, 10, 10)
-        self.assertEqual(t_analyser.to_date, None)
+        self.assertEqual(t_analyser.to_date.date(), datetime.datetime.now().date())
 
     def test_to_date_invalid_format(self):
         with self.assertRaises(ValueError):
@@ -165,7 +157,7 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         t_analyser = tweet_analyser.TweetAnalyser(
             "searchtext", 10, "token", "token", "token", "token", 
             None, None, None, 10, 10)
-        self.assertEqual(t_analyser.from_date, None)
+        self.assertEqual(t_analyser.from_date, datetime.datetime(2006, 3, 21)) # Default date is when Twitter was established.
 
     def test_from_date_invalid_format(self):
         with self.assertRaises(ValueError):
@@ -254,23 +246,34 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         self.assertEqual(t_analyser.min_word_count, 0)
 
 
+# Used by test cases as EXAMPLE ONLY tokens (not real).
+app_access_token = 'exp_token_5IPDWOouY8WrjRMLZVgC9XD9w'
+app_access_token_secret = 'exp_token_pqyXj72rd6K0v6P6Kt38cRDGVMvcmevSk85r3aFbPxtIAzCMiR'
+user_access_token = 'exp_token_3787840280-Wg6dj7ik8AgRTCVy1myE5uvx9YF7rUy1IJObEEV'
+user_access_token_secret = 'exp_token_uTNYs4M7hyfv5IpV6Dz603xLDcveYQ12gAfNDFilx6u4S'
+
+
 @mock.patch('tweepy.OAuthHandler')
 @mock.patch('tweepy.OAuthHandler.set_access_token')
 @mock.patch('tweepy.API')
 @mock.patch("tweepy.Cursor")
-class test_analyse_tweet(unittest.TestCase):
-    # tests for analyse_tweet
+class TestAnalyseTweets(unittest.TestCase):
+    '''
+    The following tests are used to actually test the bulk of the program that would actually access Twitter.
+    We have mocked out network access and therefore, there is no real communication with Twitter. We have assumed
+    what Twitter will return.
+    '''
 
     def test_search_text_valid(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
                     [
-                        mock.Mock(text="Hello my name is Fred."),
-                        mock.Mock(text="About to blow up NK - Donald Trump.")
+                        mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                        mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
                     ],
 
                     [
-                        mock.Mock(text = "Dr. Merkel is awesome!"),
-                        mock.Mock(text = "Monash University 243546576879809")
+                        mock.Mock(text = "Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                        mock.Mock(text = "Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
                     ]
             ]
 
@@ -290,13 +293,13 @@ class test_analyse_tweet(unittest.TestCase):
     def test_search_text_match(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
                     [
-                        mock.Mock(text="Hello my name is Fred."),
-                        mock.Mock(text="About to blow up NK - Donald Trump.")
+                        mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                        mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
                     ],
 
                     [
-                        mock.Mock(text = "Dr. Merkel is awesome!"),
-                        mock.Mock(text = "Monash University 243546576879809")
+                        mock.Mock(text = "Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                        mock.Mock(text = "Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
                     ]
             ]
 
@@ -315,13 +318,13 @@ class test_analyse_tweet(unittest.TestCase):
     def test_max_num_tweets_zero(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
-                mock.Mock(text="Hello my name is Fred."),
-                mock.Mock(text="About to blow up NK - Donald Trump.")
+                mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
             ],
 
             [
-                mock.Mock(text="Dr. Merkel is awesome!"),
-                mock.Mock(text="Monash University 243546576879809")
+                mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
             ]
         ]
         t_analyser = tweet_analyser.TweetAnalyser(
@@ -333,8 +336,8 @@ class test_analyse_tweet(unittest.TestCase):
     def test_tweets_matching(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
-                mock.Mock(text="Hello my name is Fred."),
-                mock.Mock(text="About to blow up NK - Donald Trump.")
+                mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
             ] * 105
         ]
         t_analyser = tweet_analyser.TweetAnalyser(
@@ -358,13 +361,13 @@ class test_analyse_tweet(unittest.TestCase):
     def test_max_num_tweets_exceeded(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
-                mock.Mock(text="Hello my name is Fred."),
-                mock.Mock(text="About to blow up NK - Donald Trump.")
+                mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
             ],
 
             [
-                mock.Mock(text="Dr. Merkel is awesome!"),
-                mock.Mock(text="Monash University 243546576879809")
+                mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
             ]
         ]
         t_analyser = tweet_analyser.TweetAnalyser(
@@ -376,8 +379,8 @@ class test_analyse_tweet(unittest.TestCase):
     def test_tweets_ordered(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
-                mock.Mock(text="Hello my name is Fred."),
-                mock.Mock(text="About to blow up NK - Donald Trump.")
+                mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
             ] * 105
         ]
         t_analyser = tweet_analyser.TweetAnalyser(
@@ -394,13 +397,13 @@ class test_analyse_tweet(unittest.TestCase):
         with self.assertRaises(tweepy.error.TweepError):
             cursor.return_value.pages.return_value = pages = [
                 [
-                    mock.Mock(text="Hello my name is Fred."),
-                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                    mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
                 ],
 
                 [
-                    mock.Mock(text="Dr. Merkel is awesome!"),
-                    mock.Mock(text="Monash University 243546576879809")
+                    mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
                 ]
             ]
             api.side_effect = tweepy.error.TweepError(reason="access token invalid")
@@ -413,13 +416,13 @@ class test_analyse_tweet(unittest.TestCase):
         with self.assertRaises(tweepy.error.TweepError):
             cursor.return_value.pages.return_value = pages = [
                 [
-                    mock.Mock(text="Hello my name is Fred."),
-                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                    mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
                 ],
 
                 [
-                    mock.Mock(text="Dr. Merkel is awesome!"),
-                    mock.Mock(text="Monash University 243546576879809")
+                    mock.Mock(text="Dr. Merkel is awesome!",created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
                 ]
             ]
             api.side_effect = tweepy.error.TweepError(reason="access token secret invalid")
@@ -432,13 +435,13 @@ class test_analyse_tweet(unittest.TestCase):
         with self.assertRaises(tweepy.error.TweepError):
             cursor.return_value.pages.return_value = pages = [
                 [
-                    mock.Mock(text="Hello my name is Fred."),
-                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                    mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
                 ],
 
                 [
-                    mock.Mock(text="Dr. Merkel is awesome!"),
-                    mock.Mock(text="Monash University 243546576879809")
+                    mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
                 ]
             ]
             api.side_effect = tweepy.error.TweepError(reason="user access token invalid")
@@ -451,13 +454,13 @@ class test_analyse_tweet(unittest.TestCase):
         with self.assertRaises(tweepy.error.TweepError):
             cursor.return_value.pages.return_value = pages = [
                 [
-                    mock.Mock(text="Hello my name is Fred."),
-                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                    mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
                 ],
 
                 [
-                    mock.Mock(text="Dr. Merkel is awesome!"),
-                    mock.Mock(text="Monash University 243546576879809")
+                    mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                    mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
                 ]
             ]
             api.side_effect = tweepy.error.TweepError(reason="user access token secret invalid")
@@ -469,13 +472,13 @@ class test_analyse_tweet(unittest.TestCase):
     def test_twitter_user_id_given(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
-                mock.Mock(text="Hello my name is Fred."),
-                mock.Mock(text="About to blow up NK - Donald Trump.")
+                mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
             ],
 
             [
-                mock.Mock(text="Dr. Merkel is awesome!"),
-                mock.Mock(text="Monash University 243546576879809")
+                mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
             ]
         ]
         t_analyser = tweet_analyser.TweetAnalyser(
@@ -487,13 +490,13 @@ class test_analyse_tweet(unittest.TestCase):
     def test_top_t_words_zero(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
-                mock.Mock(text="Hello my name is Fred."),
-                mock.Mock(text="About to blow up NK - Donald Trump.")
+                mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2016, 9, 9))
             ],
 
             [
-                mock.Mock(text="Dr. Merkel is awesome!"),
-                mock.Mock(text="Monash University 243546576879809")
+                mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="Monash University 243546576879809", created_at=datetime.datetime(2016, 9, 9))
             ]
         ]
         t_analyser = tweet_analyser.TweetAnalyser(
@@ -505,13 +508,13 @@ class test_analyse_tweet(unittest.TestCase):
     def test_top_t_words_empty_2(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
-                mock.Mock(text="Hello my name is Fred."),
-                mock.Mock(text="About to blow up NK - Donald Trump.")
+                mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2012, 9, 9)),
+                mock.Mock(text="About to blow up NK - Donald Trump.", created_at=datetime.datetime(2011, 1, 9))
             ],
 
             [
-                mock.Mock(text="Dr. Merkel is awesome!"),
-                mock.Mock(text="Monash University 243546576879809")
+                mock.Mock(text="Dr. Merkel is awesome!", created_at=datetime.datetime(2016, 9, 9)),
+                mock.Mock(text="Monash University 243546576879809",created_at=datetime.datetime(2014, 10, 9))
             ]
         ]
         t_analyser = tweet_analyser.TweetAnalyser(

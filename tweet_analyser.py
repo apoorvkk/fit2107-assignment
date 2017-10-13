@@ -26,38 +26,24 @@ class TweetAnalyser:
 		self.top_t_words = top_t_words
 		self.min_word_count = min_word_count
 
-	def tweepify(self, page, frequency, tweet_count, broken):
+	def tweepify(self, page, frequency, tweet_count):
 		# auxiliary function for analyse tweet
 		# returns broken, whether the analysing should stop because the max num tweets has been exceeded
 		# loops over each char in each word in each tweet on the page
 
-		for status in page:
-			if tweet_count >= self.max_num_tweets:
-				broken = True
-				break
-			tweet_count += 1
-			words = status.text.split()
-			for word in words:
-				add = True
-				# exclude from list if in search string
-				if self.search_text is not None and word == self.search_text:
-					continue
-				# check if char is lower or upper case letter
-				for char in word:
-					if 65 > ord(char) or 90 < ord(char) < 97 or 122 < ord(char):
-						add = False
-						break
-				# skip adding if character is not a letter
-				if not add:
-					continue
-				# add to dict
-				count = frequency.get(word, 0)
-				frequency[word] = count + 1
-		return broken
+		for tweet in page:
+			if self.from_date <= tweet.created_at <= self.to_date:
+				if tweet_count >= self.max_num_tweets:
+					return tweet_count
+				
+				for word in tweet.text.split():
+					if word.isalpha() and word not in self.search_text:
+						frequency[word] = frequency.get(word, 0) + 1
+				tweet_count += 1
+		return tweet_count
 
 	def analyse_tweets(self):
 		#returns list of tuples, ([word],[count])
-		# try:
 		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
 		auth.set_access_token(self.user_access_token, self.user_access_token_secret)
 		api = tweepy.API(auth)
@@ -65,18 +51,19 @@ class TweetAnalyser:
 		frequency = {}
 		tweet_count = 0
 		broken = False
-
+		
 		# if no ID given, search in home timeline
+		
 		if self.twitter_user_id is None:
-			cursor = tweepy.Cursor(api.home_timeline, since=self.from_date, until=self.to_date, count=200)
+			cursor = tweepy.Cursor(api.home_timeline)
 		# if ID given, search in user timeline for ID
 		else:
-			cursor = tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id, since=self.from_date, until=self.to_date, count=200)
+			cursor = tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id)
 
 		for page in cursor.pages():
-			if broken:
+			tweet_count = self.tweepify(page, frequency, tweet_count)
+			if tweet_count >= self.max_num_tweets:
 				break
-			broken = self.tweepify(page, frequency, tweet_count, broken)
 
 		# sort list in descending order
 		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
@@ -85,7 +72,7 @@ class TweetAnalyser:
 		count = 0
 		for item in sorted_list:
 			# if below min frequency or above max num of words
-			if item[1] == self.min_word_count or count == self.top_t_words:
+			if item[1] < self.min_word_count or count >= self.top_t_words:
 				break
 			count += 1
 		return sorted_list[:count]
@@ -159,11 +146,12 @@ class TweetAnalyser:
 				d = datetime.datetime.strptime(d, '%Y-%m-%d')
 			except ValueError:
 				raise ValueError("Please input a valid date which is in the format of YYYY-MM-DD.")
-
-		if d is not None and d > datetime.datetime.now():
+		else:
+			d = datetime.datetime.now()
+		if d > datetime.datetime.now():
 			raise ValueError("Please input a from date that is not after today.")
 		
-		if d is not None and self.from_date and d <= self.from_date:
+		if self.from_date and d <= self.from_date:
 			raise ValueError("Please input a to date that is after the given from date.")
 		self._to_date = d
 
@@ -174,7 +162,9 @@ class TweetAnalyser:
 				d = datetime.datetime.strptime(d, '%Y-%m-%d')
 			except ValueError:
 				raise ValueError("Please input a valid date which is in the format of YYYY-MM-DD.")
-		if d is not None and d > datetime.datetime.now():
+		else:
+			d = datetime.datetime(2006, 3, 21) # This is when Twitter started (beginning of history).
+		if d > datetime.datetime.now():
 			raise ValueError("Please input a from date that is not after today.")
 		self._from_date = d
 
