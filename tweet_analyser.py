@@ -1,6 +1,7 @@
 import operator
 import datetime
 import tweepy
+import sys
 
 class TweetAnalyser:
 	'''
@@ -29,6 +30,7 @@ class TweetAnalyser:
 		# auxiliary function for analyse tweet
 		# returns broken, whether the analysing should stop because the max num tweets has been exceeded
 		# loops over each char in each word in each tweet on the page
+
 		for status in page:
 			if tweet_count >= self.max_num_tweets:
 				broken = True
@@ -54,12 +56,15 @@ class TweetAnalyser:
 		return broken
 
 	def analyse_tweets(self):
-		# returns list of tuples, ([word],[count])
+		#returns list of tuples, ([word],[count])
+		try:
+			auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
+			auth.set_access_token(self.user_access_token, self.user_access_token_secret)
+			api = tweepy.API(auth)
+		except tweepy.error.TweepError:
+			print("Invalid authentication details.")
+			sys.exit()
 
-		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
-		auth.set_access_token(self.user_access_token, self.user_access_token_secret)
-
-		api = tweepy.API(auth)
 
 		frequency = {}
 		tweet_count = 0
@@ -67,17 +72,17 @@ class TweetAnalyser:
 
 		# if no ID given, search in home timeline
 		if self.twitter_user_id is None:
-			for page in tweepy.Cursor(api.home_timeline, since=self.from_date, until=self.to_date, count=200).pages():
-				if broken:
-					break
-				broken = self.tweepify(page, frequency, tweet_count, broken)
+			cursor = tweepy.Cursor(api.home_timeline, since=self.from_date, until=self.to_date, count=200)
 		# if ID given, search in user timeline for ID
 		else:
-			for page in tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id, since=self.from_date,
-									  until=self.to_date, count=200).pages():
-				if broken:
-					break
-				broken = self.tweepify(page, frequency, tweet_count, broken)
+			cursor = tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id, since=self.from_date, until=self.to_date, count=200)
+
+		for page in cursor.pages():
+			print(page)
+			if broken:
+				break
+			broken = self.tweepify(page, frequency, tweet_count, broken)
+
 
 		# sort list in descending order
 		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
