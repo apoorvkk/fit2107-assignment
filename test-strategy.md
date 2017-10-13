@@ -6,11 +6,11 @@ Matthew Sturgeon - mjstu3, 27833380
 ## Overview
 The project has been divided up into two parts:
 
-	1. Gathering and validating input parameters inside a class.
-	2. Fetching tweet data and processing the tweet data to output a frequency table of words.
+**1.** Gathering and validating input parameters inside a class. <br>
+**2.** Fetching tweet data and processing the tweet data to output a frequency table of words.
 
 ### Task 1 - Gathering and validating input parameters.
-Across all of the input variables tested, we mainly used domain testing and branch/path coverage testing.
+Across all of the input variables tested, we mainly used domain testing (blackbox) and branch/path coverage testing.
 
 **search_text:** Divided the input domain into 3 equivalent partitions (non-empty alpha, non-empty non-alpha and empty)
 and simply tested one input from each partition.
@@ -43,11 +43,63 @@ non-number but then realised the numbers partition can be divided up further usi
 So the numbers partition was broken down to valid numbers (min_word_count >= 0) and invalid numbers (min_word_count < 0).
 We simply tested for 1 input from each of these partitions.
 
+All of the above aims to achieve 100% statement and path coverage within each method of the setter methods. ** <- needs to be explained. **
 
+#### Digression: Looking at more blackbox testing techniques
+In addition to these whitebox techniques, we tried some blackbox techniques such as category partitioning with Jenny. To do this, we first defined our categories and choices as below: <br><br>
 
-All of the above aims to achieve 100% statement and path coverage within each method of the setter methods. **** <- needs to be explained.
+**Note:** We have reduced the 4 token category into 1 because we know that all tokens must be supplied for authentication to succeed. If even just 1 token is
+incorrect or fails, we know the program will not authenticate successfully with the Twitter API. In this way, the program will fail homogeneously over the 4 token categories. Reducing number of categories also helps us to test more parameters rigorously even with a limited set of test cases.
 
+**1.** Search text: empty, valid alphabet string, invalid non-alphabet string <br>
+**2.** Max results: empty, <0, 0<=m<=500, >500, non-number <br>
+**3.** Auth tokens: correct, incorrect <br>
+**4.** From date: empty, invalid date form, > today’s date, <= today’s date <br>
+**5.** To date: empty, invalid date form, >today’s date + no from date, <= today’s date + no from date,  <= from date, > from date <br>
+**6.** Twitter user id: empty, valid string with @, invalid string with no @ <br>
+**7.** Top t words: empty, <0, >=0, non-number <br>
+**8.** Minimum word count: empty, <0, >=0, non-number
 
+By utilising Jenny, we computed pairwise combinations with this command: <br>
+```N2: ./jenny.out -n2 3 5 2 4 6 3 4 4```
+
+This outputted this combinations (we have written the expected behaviour next to each one): <br>
+1a 2a 3b 4d 5b 6b 7d 8c	- Error on search text  (empty) <br>
+1b 2d 3a 4b 5e 6c 7b 8b - Error on max number of tweets (>500) <br>
+1c 2e 3a 4a 5c 6a 7c 8d - Error on search text (invalid non-alphabet string) <br>
+ 1b 2b 3b 4c 5a 6a 7a 8a - Auth tokens incorrect <br>
+ 1a 2c 3a 4a 5d 6b 7a 8a - Error on search text (empty) <br>
+ 1c 2c 3b 4b 5f 6c 7d 8d - Error on search text (invalid non-alphabet string) <br>
+ 1a 2e 3b 4c 5e 6b 7c 8b - Error on search text (empty) <br>
+ 1b 2b 3a 4d 5f 6c 7c 8c - Error with twitter user id (invalid string with no @) <br>
+ 1a 2d 3b 4d 5d 6a 7b 8d - Error on search text (empty) <br>
+ 1b 2a 3a 4c 5c 6c 7d 8a - Error on from date (>today’s date) <br>
+ 1a 2e 3a 4b 5a 6c 7a 8c - Error on search text (empty) <br>
+ 1b 2b 3b 4a 5b 6b 7b 8d - Error on max_num_tweets (less than 0) <br />
+ 1c 2a 3b 4d 5e 6a 7a 8b - Error on search text (invalid non-alphabet string) <br>
+ 1c 2d 3b 4c 5c 6b 7b 8c - Error on search text (invalid non-alphabet string) <br>
+ 1c 2c 3a 4b 5b 6a 7c 8b - Error on search text (invalid non-alphabet string) <br>
+ 1c 2a 3b 4b 5a 6b 7c 8d - Error on search text (invalid non-alphabet string) <br>
+ 1b 2b 3a 4a 5d 6c 7d 8b - Error on max_num_tweets (less than 0) <br>
+ 1a 2e 3b 4d 5f 6b 7b 8a - Error on search text (empty) <br>
+ 1b 2c 3b 4a 5e 6a 7d 8c - Auth tokens incorrect <br>
+ 1c 2d 3a 4b 5b 6c 7a 8a - Error on search text (invalid non-alphabet string) <br>
+ 1b 2c 3a 4d 5a 6b 7b 8b - Error on negative minimum count <br>
+ 1a 2b 3a 4b 5c 6a 7a 8b - Error on search text (empty) <br>
+ 1c 2e 3a 4c 5d 6a 7c 8c - Error on search text (invalid non-alphabet string) <br>
+ 1b 2e 3b 4c 5f 6a 7a 8d - Error on maximum number of tweets - non-number <br>
+ 1c 2d 3b 4a 5a 6a 7d 8a - Error on search text (invalid non-alphabet string) <br>
+ 1b 2a 3a 4a 5f 6a 7b 8b - Empty max num tweets <br>
+ 1c 2b 3b 4a 5e 6c 7d 8d - Error on search text (invalid non-alphabet string) <br>
+ 1a 2c 3a 4d 5c 6a 7c 8a - Error on search text (empty) <br>
+ 1c 2d 3a 4b 5f 6b 7c 8d - Error on search text (invalid non-alphabet string) <br>
+ 1c 2e 3b 4c 5b 6a 7d 8b - Error on search text (invalid non-alphabet string) <br>
+ 1b 2a 3a 4b 5d 6b 7c 8a - Error on max number of tweets <br>
+ 1c 2c 3a 4c 5e 6c 7a 8a - Error on search text (invalid non-alphabet string) <br>
+
+**Note: ** "1c" means Category 1 (Search text) and 3rd choice (invalid non-alphabet string). <br>
+
+Because all of the above testcases have already been covered by the existing test cases that were produced via rigorous white box testing techniques (eg. Branch, statement coverage etc.), we have decided to omit these test cases. These cases represent failed cases on specific parameters (where other parameters does not have any effect on the overall failure) which have already been created for each variable.
 
 
 ### Task 2 - Fetching tweet data and processing the tweet data to output a frequency table of words.
