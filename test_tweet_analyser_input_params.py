@@ -279,6 +279,7 @@ class test_analyse_tweet(unittest.TestCase):
             None, None, None, None, None)
 
         frequencies = t_analyser.analyse_tweets()
+
         found = False
         for item in frequencies:
             if item[0] == t_analyser.search_text:
