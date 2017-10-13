@@ -280,7 +280,6 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
 
         
         frequencies = t_analyser.analyse_tweets()
-        print(frequencies)
         
         found = False
         for item in frequencies:
