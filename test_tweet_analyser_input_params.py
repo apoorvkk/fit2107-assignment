@@ -330,7 +330,7 @@ class test_analyse_tweet(unittest.TestCase):
         frequencies = t_analyser.analyse_tweets()
         self.assertEqual(frequencies, [])
 
-    def test_max_num_tweets_break(self, cursor, api, access_token, oauth):
+    def test_tweets_matching(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
                 mock.Mock(text="Hello my name is Fred."),
@@ -341,8 +341,13 @@ class test_analyse_tweet(unittest.TestCase):
             "searchtext", 203, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
             None, None, None, None, None)
         frequencies = t_analyser.analyse_tweets()
-        self.assertEqual(frequencies, [('Hello', 102), ('my', 102), ('name', 102), ('is', 102), ('About', 101),
-                                          ('to', 101), ('blow', 101), ('up', 101), ('NK', 101), ('Donald', 101)])
+        matching = True
+        expected = [('Hello', 102), ('my', 102), ('name', 102), ('is', 102), ('About', 101),
+                                          ('to', 101), ('blow', 101), ('up', 101), ('NK', 101), ('Donald', 101)]
+        for i in range(len(frequencies)):
+            if frequencies[i] != expected[i]:
+                matching = False
+        self.assertTrue(matching)
 
     def test_max_num_tweets_exceeded(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
