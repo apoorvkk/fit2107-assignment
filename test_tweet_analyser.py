@@ -197,7 +197,7 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         t_analyser = tweet_analyser.TweetAnalyser(
             "a", 10, "token", "token", "token", "token", 
             None, None, "@random_id", 10, 10)
-        self.assertEqual(t_analyser.twitter_user_id, "@random_id")
+        self.assertEqual(t_analyser.twitter_user_id, "random_id")
     
     def test_twitter_user_id_invalid(self):
         with self.assertRaises(ValueError):
@@ -465,6 +465,24 @@ class test_analyse_tweet(unittest.TestCase):
                 "searchtext", 10, app_access_token, app_access_token_secret, user_access_token,
                 user_access_token_secret, None, None, None, None, None)
             frequencies = t_analyser.analyse_tweets()
+
+    def test_twitter_user_id_given(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+            [
+                mock.Mock(text="Hello my name is Fred."),
+                mock.Mock(text="About to blow up NK - Donald Trump.")
+            ],
+
+            [
+                mock.Mock(text="Dr. Merkel is awesome!"),
+                mock.Mock(text="Monash University 243546576879809")
+            ]
+        ]
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 10, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, "@Fred", None, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(len(frequencies), 10)
 
     def test_top_t_words_zero(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [

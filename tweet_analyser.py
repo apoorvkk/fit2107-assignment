@@ -184,6 +184,7 @@ class TweetAnalyser:
 			i = str(i)
 			if i[0] != "@":
 				raise ValueError("Please ensure the given twitter user id starts with '@'")
+			i = i[1:]
 		self._twitter_user_id = i
 
 	@top_t_words.setter
