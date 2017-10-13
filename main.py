@@ -22,6 +22,13 @@ if __name__ == "__main__":
 	t_analyser = tweet_analyser.TweetAnalyser(args.s, args.m, args.o, args.p, args.u, args.x, args.a, args.b, args.i,
 		args.t, args.c)
 
+	frequency_table = t_analyser.analyse_tweets()
+
+	for item in frequency_table:
+		total = str(item[1])
+		if len(total) == 1:
+			total = "0" + total
+		print(total + "    " + item[0])
 	
 
 
