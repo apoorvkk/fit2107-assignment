@@ -7,7 +7,7 @@ from unittest import mock
 
 class TestInputParams(unittest.TestCase):
     '''
-    The following tests are for input parameters and validating their data.
+    The following tests are for input parameters and validating their data. These tests only check if data is being validated.
     '''
 
     def test_search_text_empty(self):
@@ -375,6 +375,7 @@ class TestAnalyseTweets(unittest.TestCase):
             None, None, None, None, None)
         frequencies = t_analyser.analyse_tweets()
         self.assertEqual(len(frequencies), 4)
+        self.assertEqual(frequencies, [('Hello', 1), ('my', 1), ('name', 1), ('is', 1)])
 
     def test_tweets_ordered(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
@@ -505,7 +506,7 @@ class TestAnalyseTweets(unittest.TestCase):
         frequencies = t_analyser.analyse_tweets()
         self.assertEqual(frequencies, [])
 
-    def test_top_t_words_empty_2(self, cursor, api, access_token, oauth):
+    def test_top_t_words_not_supplied(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
             [
                 mock.Mock(text="Hello my name is Fred.", created_at=datetime.datetime(2012, 9, 9)),

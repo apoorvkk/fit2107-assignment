@@ -27,9 +27,11 @@ class TweetAnalyser:
 		self.min_word_count = min_word_count
 
 	def tweepify(self, page, frequency, tweet_count):
-		# auxiliary function for analyse tweet
-		# returns broken, whether the analysing should stop because the max num tweets has been exceeded
-		# loops over each char in each word in each tweet on the page
+		'''
+		This is an auxillary function that extracts tweets from the current page returned by Twitter and updates
+		the frequency table accordingly. It will process a tweet if it's within the date range and the tweet count does
+		not exceed the max allowed results.
+		'''
 
 		for tweet in page:
 			if self.from_date <= tweet.created_at <= self.to_date:
@@ -43,21 +45,21 @@ class TweetAnalyser:
 		return tweet_count
 
 	def analyse_tweets(self):
-		#returns list of tuples, ([word],[count])
+		'''
+		This is the core part of the program where it aims to produce a frequency table of words (sorted) by parsing
+		tweets.
+		'''
+
 		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
 		auth.set_access_token(self.user_access_token, self.user_access_token_secret)
 		api = tweepy.API(auth)
 
 		frequency = {}
 		tweet_count = 0
-		broken = False
-		
-		# if no ID given, search in home timeline
-		
-		if self.twitter_user_id is None:
+	
+		if self.twitter_user_id is None: # If no ID given, search in home timeline.
 			cursor = tweepy.Cursor(api.home_timeline)
-		# if ID given, search in user timeline for ID
-		else:
+		else: # If ID given, search in user timeline for ID.
 			cursor = tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id)
 
 		for page in cursor.pages():
@@ -65,10 +67,10 @@ class TweetAnalyser:
 			if tweet_count >= self.max_num_tweets:
 				break
 
-		# sort list in descending order
+		# Sort list in descending order.
 		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
 
-		# get count for whichever is lower out of the min frequency or top quantity of words
+		# Get count for whichever is lower out of the min frequency or top quantity of words.
 		count = 0
 		for item in sorted_list:
 			# if below min frequency or above max num of words
