@@ -344,6 +344,9 @@ class test_analyse_tweet(unittest.TestCase):
         matching = True
         expected = [('Hello', 102), ('my', 102), ('name', 102), ('is', 102), ('About', 101),
                                           ('to', 101), ('blow', 101), ('up', 101), ('NK', 101), ('Donald', 101)]
+        print(expected)
+        print("----------")
+        print(frequencies)
         for i in range(len(frequencies)):
             if str(frequencies[i][0]) != str(expected[i][0]):
                 matching = False
