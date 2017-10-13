@@ -254,12 +254,13 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         self.assertEqual(t_analyser.min_word_count, 0)
 
 
+@mock.patch('tweepy.OAuthHandler')
+@mock.patch('tweepy.OAuthHandler.set_access_token')
+@mock.patch('tweepy.API')
+@mock.patch("tweepy.Cursor")
+class test_analyse_tweet(unittest.TestCase):
     # tests for analyse_tweet
-    
-    @mock.patch('tweepy.OAuthHandler')
-    @mock.patch('tweepy.OAuthHandler.set_access_token')
-    @mock.patch('tweepy.API')
-    @mock.patch("tweepy.Cursor")
+
     def test_search_text_valid(self, cursor, api, access_token, oauth):
         cursor.return_value.pages.return_value = pages = [
                     [
@@ -276,12 +277,8 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
         t_analyser = tweet_analyser.TweetAnalyser(
             "the", None, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
             None, None, None, None, None)
-        
 
-        
         frequencies = t_analyser.analyse_tweets()
-        print(frequencies)
-        
         found = False
         for item in frequencies:
             if item[0] == t_analyser.search_text:
@@ -289,54 +286,209 @@ class TestTweetAnalyserInputParams(unittest.TestCase):
                 break
         self.assertEqual(found, False)
 
-    # def test_max_num_tweets_zero(self):
-    #     t_analyser = tweet_analyser.TweetAnalyser(
-    #         "searchtext", 0, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
-    #         None, None, None, None, None)
-    #     frequencies = t_analyser.analyse_tweets()
-    #     self.assertEqual(frequencies, [])
+    def test_search_text_match(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+                    [
+                        mock.Mock(text="Hello my name is Fred."),
+                        mock.Mock(text="About to blow up NK - Donald Trump.")
+                    ],
 
-    # def test_app_access_token_invalid(self):
-    #     with self.assertRaises(tweepy.error.TweepError):
-    #         t_analyser = tweet_analyser.TweetAnalyser(
-    #             "searchtext", 10, "app_access_token", app_access_token_secret, user_access_token,
-    #             user_access_token_secret, None, None, None, None, None)
-    #         frequencies = t_analyser.analyse_tweets()
+                    [
+                        mock.Mock(text = "Dr. Merkel is awesome!"),
+                        mock.Mock(text = "Monash University 243546576879809")
+                    ]
+            ]
 
-    # def test_app_access_token_secret_invalid(self):
-    #     with self.assertRaises(tweepy.error.TweepError):
-    #         t_analyser = tweet_analyser.TweetAnalyser(
-    #             "searchtext", 10, app_access_token, "app_access_token_secret", user_access_token,
-    #             user_access_token_secret, None, None, None, None, None)
-    #         frequencies = t_analyser.analyse_tweets()
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "Hello", None, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
 
-    # def test_user_access_token_invalid(self):
-    #     with self.assertRaises(tweepy.error.TweepError):
-    #         t_analyser = tweet_analyser.TweetAnalyser(
-    #             "searchtext", 10, app_access_token, app_access_token_secret, "user_access_token",
-    #             user_access_token_secret, None, None, None, None, None)
-    #         frequencies = t_analyser.analyse_tweets()
+        frequencies = t_analyser.analyse_tweets()
+        found = False
+        for item in frequencies:
+            if item[0] == t_analyser.search_text:
+                found = True
+                break
+        self.assertEqual(found, False)
 
-    # def test_user_access_token_secret_invalid(self):
-    #     with self.assertRaises(tweepy.error.TweepError):
-    #         t_analyser = tweet_analyser.TweetAnalyser(
-    #             "searchtext", 10, app_access_token, app_access_token_secret, user_access_token,
-    #             "user_access_token_secret", None, None, None, None, None)
-    #         frequencies = t_analyser.analyse_tweets()
+    def test_max_num_tweets_zero(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+            [
+                mock.Mock(text="Hello my name is Fred."),
+                mock.Mock(text="About to blow up NK - Donald Trump.")
+            ],
 
-    # def test_top_t_words_zero(self):
-    #     t_analyser = tweet_analyser.TweetAnalyser(
-    #         "searchtext", 10, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
-    #         None, None, None, 0, None)
-    #     frequencies = t_analyser.analyse_tweets()
-    #     self.assertEqual(frequencies, [])
+            [
+                mock.Mock(text="Dr. Merkel is awesome!"),
+                mock.Mock(text="Monash University 243546576879809")
+            ]
+        ]
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 0, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(frequencies, [])
 
-    # def test_top_t_words_empty_2(self):
-    #     t_analyser = tweet_analyser.TweetAnalyser(
-    #         "searchtext", 10, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
-    #         None, None, None, None, None)
-    #     frequencies = t_analyser.analyse_tweets()
-    #     self.assertEqual(len(frequencies), 10)
+    def test_max_num_tweets_break(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+            [
+                mock.Mock(text="Hello my name is Fred."),
+                mock.Mock(text="About to blow up NK - Donald Trump.")
+            ] * 105
+        ]
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 203, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(frequencies, [('Hello', 102), ('my', 102), ('name', 102), ('is', 102), ('About', 101),
+                                          ('to', 101), ('blow', 101), ('up', 101), ('NK', 101), ('Donald', 101)])
+
+    def test_max_num_tweets_exceeded(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+            [
+                mock.Mock(text="Hello my name is Fred."),
+                mock.Mock(text="About to blow up NK - Donald Trump.")
+            ],
+
+            [
+                mock.Mock(text="Dr. Merkel is awesome!"),
+                mock.Mock(text="Monash University 243546576879809")
+            ]
+        ]
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 1, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(len(frequencies), 4)
+
+    def test_tweets_ordered(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+            [
+                mock.Mock(text="Hello my name is Fred."),
+                mock.Mock(text="About to blow up NK - Donald Trump.")
+            ] * 105
+        ]
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 203, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        ordered = True
+        for i in range(len(frequencies)-1):
+            if frequencies[i][1] < frequencies[i+1][1]:
+                ordered = False
+        self.assertTrue(ordered)
+
+    def test_app_access_token_invalid(self, cursor, api, access_token, oauth):
+        with self.assertRaises(tweepy.error.TweepError):
+            cursor.return_value.pages.return_value = pages = [
+                [
+                    mock.Mock(text="Hello my name is Fred."),
+                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                ],
+
+                [
+                    mock.Mock(text="Dr. Merkel is awesome!"),
+                    mock.Mock(text="Monash University 243546576879809")
+                ]
+            ]
+            api.side_effect = tweepy.error.TweepError(reason="access token invalid")
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, app_access_token, app_access_token_secret, user_access_token,
+                user_access_token_secret, None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_app_access_token_secret_invalid(self, cursor, api, access_token, oauth):
+        with self.assertRaises(tweepy.error.TweepError):
+            cursor.return_value.pages.return_value = pages = [
+                [
+                    mock.Mock(text="Hello my name is Fred."),
+                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                ],
+
+                [
+                    mock.Mock(text="Dr. Merkel is awesome!"),
+                    mock.Mock(text="Monash University 243546576879809")
+                ]
+            ]
+            api.side_effect = tweepy.error.TweepError(reason="access token secret invalid")
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, app_access_token, app_access_token_secret, user_access_token,
+                user_access_token_secret, None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_user_access_token_invalid(self, cursor, api, access_token, oauth):
+        with self.assertRaises(tweepy.error.TweepError):
+            cursor.return_value.pages.return_value = pages = [
+                [
+                    mock.Mock(text="Hello my name is Fred."),
+                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                ],
+
+                [
+                    mock.Mock(text="Dr. Merkel is awesome!"),
+                    mock.Mock(text="Monash University 243546576879809")
+                ]
+            ]
+            api.side_effect = tweepy.error.TweepError(reason="user access token invalid")
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, app_access_token, app_access_token_secret, user_access_token,
+                user_access_token_secret, None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_user_access_token_secret_invalid(self, cursor, api, access_token, oauth):
+        with self.assertRaises(tweepy.error.TweepError):
+            cursor.return_value.pages.return_value = pages = [
+                [
+                    mock.Mock(text="Hello my name is Fred."),
+                    mock.Mock(text="About to blow up NK - Donald Trump.")
+                ],
+
+                [
+                    mock.Mock(text="Dr. Merkel is awesome!"),
+                    mock.Mock(text="Monash University 243546576879809")
+                ]
+            ]
+            api.side_effect = tweepy.error.TweepError(reason="user access token secret invalid")
+            t_analyser = tweet_analyser.TweetAnalyser(
+                "searchtext", 10, app_access_token, app_access_token_secret, user_access_token,
+                user_access_token_secret, None, None, None, None, None)
+            frequencies = t_analyser.analyse_tweets()
+
+    def test_top_t_words_zero(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+            [
+                mock.Mock(text="Hello my name is Fred."),
+                mock.Mock(text="About to blow up NK - Donald Trump.")
+            ],
+
+            [
+                mock.Mock(text="Dr. Merkel is awesome!"),
+                mock.Mock(text="Monash University 243546576879809")
+            ]
+        ]
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 10, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, 0, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(frequencies, [])
+
+    def test_top_t_words_empty_2(self, cursor, api, access_token, oauth):
+        cursor.return_value.pages.return_value = pages = [
+            [
+                mock.Mock(text="Hello my name is Fred."),
+                mock.Mock(text="About to blow up NK - Donald Trump.")
+            ],
+
+            [
+                mock.Mock(text="Dr. Merkel is awesome!"),
+                mock.Mock(text="Monash University 243546576879809")
+            ]
+        ]
+        t_analyser = tweet_analyser.TweetAnalyser(
+            "searchtext", 10, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
+            None, None, None, None, None)
+        frequencies = t_analyser.analyse_tweets()
+        self.assertEqual(len(frequencies), 10)
 
 
 if __name__ == '__main__':

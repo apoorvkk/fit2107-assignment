@@ -57,14 +57,10 @@ class TweetAnalyser:
 
 	def analyse_tweets(self):
 		#returns list of tuples, ([word],[count])
-		try:
-			auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
-			auth.set_access_token(self.user_access_token, self.user_access_token_secret)
-			api = tweepy.API(auth)
-		except tweepy.error.TweepError:
-			print("Invalid authentication details.")
-			sys.exit()
-
+		# try:
+		auth = tweepy.OAuthHandler(self.app_access_token, self.app_access_token_secret)
+		auth.set_access_token(self.user_access_token, self.user_access_token_secret)
+		api = tweepy.API(auth)
 
 		frequency = {}
 		tweet_count = 0
@@ -78,11 +74,9 @@ class TweetAnalyser:
 			cursor = tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id, since=self.from_date, until=self.to_date, count=200)
 
 		for page in cursor.pages():
-			print(page)
 			if broken:
 				break
 			broken = self.tweepify(page, frequency, tweet_count, broken)
-
 
 		# sort list in descending order
 		sorted_list = sorted(frequency.items(), key=operator.itemgetter(1), reverse=True)
