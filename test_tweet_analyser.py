@@ -341,15 +341,18 @@ class test_analyse_tweet(unittest.TestCase):
             "searchtext", 203, app_access_token, app_access_token_secret, user_access_token, user_access_token_secret,
             None, None, None, None, None)
         frequencies = t_analyser.analyse_tweets()
-        matching = True
+        matching = False
         expected = [('Hello', 102), ('my', 102), ('name', 102), ('is', 102), ('About', 101),
-                                          ('to', 101), ('blow', 101), ('up', 101), ('NK', 101), ('Donald', 101)]
-        print(expected)
-        print("----------")
-        print(frequencies)
+                             ('to', 101), ('blow', 101), ('up', 101), ('NK', 101), ('Donald', 101)]
         for i in range(len(frequencies)):
-            if str(frequencies[i][0]) != str(expected[i][0]):
-                matching = False
+            matching = False
+            for j in range(len(expected)):
+                if frequencies[i][0] == expected[j][0]:
+                    matching = True
+                    del expected[j]
+                    break
+            if matching is False:
+                break
         self.assertTrue(matching)
 
     def test_max_num_tweets_exceeded(self, cursor, api, access_token, oauth):
