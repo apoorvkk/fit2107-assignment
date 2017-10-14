@@ -57,9 +57,10 @@ class TweetAnalyser:
 		frequency = {}
 		tweet_count = 0
 	
-		# If no ID given, search in home timeline. This is an ASSUMPTION we have made as we cannot get all tweets from all users as there are too many.
+		# If no ID given, search in user timeline of the given user token. 
+		# This is an ASSUMPTION we have made as we cannot get all tweets from all users as there are too many.
 		if self.twitter_user_id is None: 
-			cursor = tweepy.Cursor(api.home_timeline)
+			cursor = tweepy.Cursor(api.user_timeline)
 		else: # If ID given, search in user timeline for ID.
 			cursor = tweepy.Cursor(api.user_timeline, screen_name=self.twitter_user_id)
 
