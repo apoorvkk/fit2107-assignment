@@ -102,3 +102,16 @@ Because all of the above testcases have already been covered by the existing tes
 
 
 ### Task 2 - Fetching tweet data and processing the tweet data to output a frequency table of words.
+The primary method of determining test cases for the analyse tweets part was branch/statement coverage. This was deemed to be the most appropriate because the function has many different decisions made depending on the input parameters. It is also important that for this function we test that every line delivers the appropriate response from the server or returns the intended values. In some test cases we found that using domain testing to identify partitions would allow us to cover all branches. Mocking was also used in all of these test cases to imitate API calls, reducing the time taken to run the tests. We made assumtions on the type of data returned by the API and used this as a predicted output.
+
+**search_text:** Tested for search text which would be found in the tweets and text which would not be found, this ensured total statement coverage for the handling of input text in the function. If the word was found, the word would be ommitted from the output list. If it was not found, there would be no effect and it would not be in the output list anyway.
+
+**max_num_tweets:** To ensure tests have complete statement/branch coverage we tested for how the function handles when the maximum number of tweets if zero and if the number limits the tweet output properly. Zero was tested to ensure that no tweets were processed, thus no word frequencies output. To test the limiting tweet number we tested for one mocked tweet and validated the word frequencies output length.
+
+**correct output format:** The brief specified that the output should be sorted in terms of highest to lowest occurring word. This was also branch coverage because we needed to check that the sorting algorithm provided the correct order in the output. 
+
+**all tokens:** These tests required domain testing, however the only partition used was supplying invalid credentials because this is the only way that a TweepError can be raised.
+
+**twitter_user_id:** Used statement coverage testing to test the input of a Twitter username. Having this input parameter will call a different piece of code but still provide the same format of output.
+
+**top_t_words:** Tested by domain with two partitions: top number of words being zero and top number of words not supplied.  This ensured that all branches would be covered.
