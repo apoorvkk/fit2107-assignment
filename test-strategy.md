@@ -115,3 +115,11 @@ The primary method of determining test cases for the analyse tweets part was bra
 **twitter_user_id:** Used statement coverage testing to test the input of a Twitter username. Having this input parameter will call a different piece of code but still provide the same format of output.
 
 **top_t_words:** Tested by domain with two partitions: top number of words being zero and top number of words not supplied.  This ensured that all branches would be covered.
+
+
+## Notes:
+We have made an assumption that if no twtter user id has been supplied, we will simply get tweets for the given user mapped to the user access token. Tweepy 
+library does not support date filtering so we had to fallback and get all tweets and then locally parse the tweets based on given tweets. As a result,
+we cannot get ALL tweets from ALL users as mentioned in the assignment specification. <br>
+
+For more assumptions, please see source code.
